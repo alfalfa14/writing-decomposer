@@ -38,6 +38,20 @@
       analyzeOutput(output);
       await new Promise(r => setTimeout(r, 60));
       gsap.fromTo('.output-block', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+      await new Promise(r => setTimeout(r, 100));
+      document.querySelectorAll('.repel-text:not([data-repel-init])').forEach(el => {
+        el.setAttribute('data-repel-init', '1');
+        Array.from(el.childNodes).forEach(node => {
+          if (node.nodeType === 3 && node.textContent.trim()) {
+            const span = document.createElement('span');
+            span.className = 'repel-word-wrap';
+            span.innerHTML = node.textContent.split('').map(ch =>
+              ch === ' ' ? '&nbsp;' : `<span class="repel-char" style="display:inline-block;will-change:transform;">${ch}</span>`
+            ).join('');
+            node.parentNode.replaceChild(span, node);
+          }
+        });
+      });
     } catch (e) { error = 'Generation failed.'; }
     generating = false;
   }
@@ -228,7 +242,10 @@
         });
       }
 
-      document.querySelectorAll('.repel-text').forEach(el => wrapEl(el));
+      document.querySelectorAll('.repel-text').forEach(el => {
+        el.setAttribute('data-repel-init', '1');
+        wrapEl(el);
+      });
 
       window.addEventListener('mousemove', e => {
         document.querySelectorAll('.repel-char').forEach(char => {
