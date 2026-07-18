@@ -1,9 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
+  let gsap;
+  let ScrollTrigger;
 
   let inputText = $state('');
   let cards = $state([]);
@@ -86,7 +84,13 @@
     return Object.entries(counts).map(([type, count]) => ({ type, count, pct: Math.round((count / total) * 100), cfg: typeConfig[type] ?? { label: type, color: '#888' } }));
   }
 
-  onMount(() => {
+  onMount(async () => {
+    const gsapModule = await import('gsap');
+    gsap = gsapModule.default;
+    const stModule = await import('gsap/ScrollTrigger');
+    ScrollTrigger = stModule.ScrollTrigger ?? stModule.default?.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
     // Custom cursor
     const cursor = document.querySelector('.cursor');
     const cursorInner = document.querySelector('.cursor-inner');
